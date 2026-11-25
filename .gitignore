@@ -46,4 +46,6 @@ next-env.d.ts
 # local engineering notes
 ENGINEERING_NOTES.md
 
-jpg*
+# local raw brand assets
+/Logo.jpg
+/karyaflowfavicon.jpg
