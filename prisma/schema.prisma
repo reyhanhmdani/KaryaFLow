@@ -1,0 +1,181 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+enum Role {
+  EMPLOYEE
+  HR_ADMIN
+  EXECUTIVE
+}
+
+enum EmploymentStatus {
+  PROBATION
+  ACTIVE
+  RESIGNED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  ON_LEAVE
+}
+
+enum LeaveType {
+  ANNUAL
+  SICK
+  SPECIAL
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PayrollStatus {
+  DRAFT
+  PROCESSED
+  PAID
+}
+
+model OfficeConfig {
+  id              String   @id @default("default")
+  officeName      String   @default("KaryaFlow HQ")
+  officeLat       Float
+  officeLng       Float
+  maxRadiusMeters Int      @default(100)
+  workStartTime   String   @default("09:00")
+  updatedAt       DateTime @updatedAt
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  passwordHash    String
+  role            Role             @default(EMPLOYEE)
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  // Opsional: null jika akun murni pengawas/admin non-karyawan
+  employeeProfile EmployeeProfile?
+}
+
+model EmployeeProfile {
+  id               String           @id @default(uuid())
+  userId           String           @unique
+  user             User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  employeeCode     String           @unique // Contoh: "KF-2026-001"
+  fullName         String
+  department       String
+  position         String
+  status           EmploymentStatus @default(ACTIVE)
+  joinedAt         DateTime         @default(now())
+  resignedAt       DateTime?
+  avatarUrl        String?
+
+  baseSalary       Decimal          @db.Decimal(12, 2)
+  fixedAllowance   Decimal          @default(0) @db.Decimal(12, 2)
+  leaveQuota       Int              @default(12)
+
+  attendances      Attendance[]
+  leaveRequests    LeaveRequest[]   @relation("EmployeeLeaves")
+  reviewedLeaves   LeaveRequest[]   @relation("ReviewerLeaves")
+  payrolls         Payroll[]
+  performances     Performance[]
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([department])
+  @@index([status])
+}
+
+model Attendance {
+  id            String           @id @default(uuid())
+  employeeId    String
+  date          String           // Format "YYYY-MM-DD" terkunci zona Asia/Jakarta
+  clockIn       DateTime
+  clockOut      DateTime?
+  clockInLat    Float?
+  clockInLng    Float?
+  clockOutLat   Float?
+  clockOutLng   Float?
+  distanceMeter Int?
+  status        AttendanceStatus @default(PRESENT)
+  lateMinutes   Int              @default(0)
+  isWfo         Boolean          @default(true)
+  notes         String?
+  createdAt     DateTime         @default(now())
+
+  employee      EmployeeProfile  @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@unique([employeeId, date])
+  @@index([employeeId, date])
+}
+
+model LeaveRequest {
+  id                   String           @id @default(uuid())
+  employeeId           String
+  reviewedByEmployeeId String?
+  leaveType            LeaveType
+  startDate            DateTime         @db.Date
+  endDate              DateTime         @db.Date
+  totalDays            Int
+  reason               String
+  status               LeaveStatus      @default(PENDING)
+  rejectionNote        String?
+  reviewedAt           DateTime?
+  createdAt            DateTime         @default(now())
+
+  employee             EmployeeProfile  @relation("EmployeeLeaves", fields: [employeeId], references: [id], onDelete: Restrict)
+  reviewedBy           EmployeeProfile? @relation("ReviewerLeaves", fields: [reviewedByEmployeeId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId, status])
+}
+
+model Payroll {
+  id                   String          @id @default(uuid())
+  employeeId           String
+  periodMonth          Int
+  periodYear           Int
+  baseSalary           Decimal         @db.Decimal(12, 2)
+  allowances           Decimal         @default(0) @db.Decimal(12, 2)
+  lateCount            Int             @default(0)
+  lateDeduction        Decimal         @default(0) @db.Decimal(12, 2)
+  unpaidLeaveDays      Int             @default(0)
+  unpaidLeaveDeduction Decimal         @default(0) @db.Decimal(12, 2)
+  taxBpjsDeduction     Decimal         @default(0) @db.Decimal(12, 2)
+  netSalary            Decimal         @db.Decimal(12, 2)
+  status               PayrollStatus   @default(DRAFT)
+  paidAt               DateTime?
+  createdAt            DateTime        @default(now())
+
+  employee             EmployeeProfile @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@unique([employeeId, periodMonth, periodYear])
+  @@index([periodYear, periodMonth])
+}
+
+model Performance {
+  id                  String          @id @default(uuid())
+  employeeId          String
+  periodMonth         Int
+  periodYear          Int
+  attendanceRate      Decimal         @db.Decimal(5, 2)
+  punctualityRate     Decimal         @db.Decimal(5, 2)
+  taskCompletionRate  Decimal         @db.Decimal(5, 2)
+  managerNotes        String?
+  createdAt           DateTime        @default(now())
+
+  employee            EmployeeProfile @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@unique([employeeId, periodMonth, periodYear])
+}
