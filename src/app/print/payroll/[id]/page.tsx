@@ -78,9 +78,14 @@ export default async function PrintPayrollPage({
             <div className="border-b-2 border-[#2B2D31] pb-5 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#2B2D31] text-[#FFC93C] flex items-center justify-center font-black text-sm">
-                      K
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden border border-[#E2DED3] bg-[#F6F4EE] shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/images/karyaflow-logo.jpg"
+                        alt="Logo KaryaFlow"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <h1 className="text-xl font-black tracking-tight text-[#2B2D31]">
                       PT KARYA FLOW NUSANTARA

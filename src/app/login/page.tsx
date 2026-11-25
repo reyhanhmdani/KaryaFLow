@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { MapPin, CalendarCheck, Receipt } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
@@ -26,8 +27,15 @@ export default async function LoginPage() {
         {/* Studio Mark */}
         <div className="relative z-10 flex items-center justify-between">
           <div className="inline-flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#F7C331] flex items-center justify-center text-[#1B1C1E] font-display font-bold text-lg">
-              K
+            <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#F6F4EE] ring-1 ring-white/20 shadow-sm shrink-0">
+              <Image
+                src="/images/karyaflow-logo.jpg"
+                alt="Logo KaryaFlow"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+                priority
+              />
             </div>
             <span className="font-display text-xl font-bold tracking-tight text-[#F6F4EE]">
               KaryaFlow

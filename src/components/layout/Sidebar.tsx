@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -104,8 +105,15 @@ export function Sidebar({ user }: SidebarProps) {
       {/* Brand Header */}
       <div className="h-14 px-5 flex items-center justify-between border-b border-[#E2DED3]/80">
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-7 h-7 rounded-lg bg-[#1B1C1E] flex items-center justify-center text-[#F7C331] font-display font-bold text-sm group-hover:scale-105 transition-transform duration-150">
-            K
+          <div className="w-8 h-8 rounded-lg overflow-hidden border border-[#E2DED3] bg-[#F6F4EE] shrink-0 group-hover:scale-105 transition-transform duration-150">
+            <Image
+              src="/images/karyaflow-logo.jpg"
+              alt="Logo KaryaFlow"
+              width={32}
+              height={32}
+              className="w-full h-full object-cover"
+              priority
+            />
           </div>
           <span className="font-display text-[17px] font-bold tracking-tight text-[#1B1C1E]">
             Karya<span className="text-[#C88E0B]">Flow</span>
