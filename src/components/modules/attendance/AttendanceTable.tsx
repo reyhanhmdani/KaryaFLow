@@ -2,17 +2,14 @@ import React from "react";
 import { AttendanceDTO } from "@/types";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formatIndonesianDate } from "@/lib/format";
+import { formatIndonesianDate, formatTimeWIB } from "@/lib/format";
 
 interface AttendanceTableProps {
   attendances: AttendanceDTO[];
   isHrAdmin?: boolean;
 }
 
-export function AttendanceTable({
-  attendances,
-  isHrAdmin = false,
-}: AttendanceTableProps) {
+export function AttendanceTable({ attendances, isHrAdmin = false }: AttendanceTableProps) {
   if (attendances.length === 0) {
     return (
       <div className="p-8 bg-white border border-[#D9DADC] rounded-2xl">
@@ -48,15 +45,10 @@ export function AttendanceTable({
           </thead>
           <tbody className="divide-y divide-[#D9DADC]/50">
             {attendances.map((row) => (
-              <tr
-                key={row.id}
-                className="hover:bg-zinc-50/80 transition-colors h-[52px]"
-              >
+              <tr key={row.id} className="hover:bg-zinc-50/80 transition-colors h-[52px]">
                 {isHrAdmin && (
                   <td className="py-3 px-5">
-                    <p className="font-semibold text-[#1B1C1E]">
-                      {row.employeeName || "—"}
-                    </p>
+                    <p className="font-semibold text-[#1B1C1E]">{row.employeeName || "—"}</p>
                     <p className="text-[11px] text-[#73757D]">
                       {row.employeeCode ? `${row.employeeCode} · ` : ""}
                       {row.department || "—"}
@@ -67,20 +59,10 @@ export function AttendanceTable({
                   {formatIndonesianDate(row.date)}
                 </td>
                 <td className="py-3 px-4 font-mono tabular-nums text-[#2B2D31]">
-                  {row.clockIn
-                    ? `${new Date(row.clockIn).toLocaleTimeString("id-ID", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })} WIB`
-                    : "—"}
+                  {row.clockIn ? `${formatTimeWIB(row.clockIn)} WIB` : "—"}
                 </td>
                 <td className="py-3 px-4 font-mono tabular-nums text-[#71757E]">
-                  {row.clockOut
-                    ? `${new Date(row.clockOut).toLocaleTimeString("id-ID", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })} WIB`
-                    : "—"}
+                  {row.clockOut ? `${formatTimeWIB(row.clockOut)} WIB` : "—"}
                 </td>
                 <td className="py-3 px-4">
                   <StatusBadge status={row.status} size="sm" />
@@ -91,9 +73,7 @@ export function AttendanceTable({
                 <td className="py-3 px-4 text-right font-mono tabular-nums text-[#71757E]">
                   {row.distanceMeter !== null ? `${row.distanceMeter}m` : "—"}
                 </td>
-                <td className="py-3 px-5 text-[#71757E] max-w-xs truncate">
-                  {row.notes || "—"}
-                </td>
+                <td className="py-3 px-5 text-[#71757E] max-w-xs truncate">{row.notes || "—"}</td>
                 {isHrAdmin && (
                   <td className="py-3 px-5 text-right font-mono text-[10px] tabular-nums text-[#71757E]">
                     {row.clockInLat !== null && row.clockInLng !== null

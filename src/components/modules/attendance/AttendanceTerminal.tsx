@@ -22,6 +22,7 @@ import { AttendanceDTO, OfficeConfigDTO, SessionUserDTO } from "@/types";
 import { calculateHaversineMeters } from "@/lib/geo";
 import { clockInAction, clockOutAction } from "@/actions/attendance.actions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { formatTimeWIB } from "@/lib/format";
 import { GeofenceMap } from "./GeofenceMap";
 
 interface AttendanceTerminalProps {
@@ -496,11 +497,7 @@ export function AttendanceTerminal({
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>Clock In tercatat pukul:</span>
                   <span className="font-mono font-bold tabular-nums">
-                    {new Date(todayAttendance.clockIn).toLocaleTimeString("id-ID", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}{" "}
-                    WIB
+                    {formatTimeWIB(todayAttendance.clockIn)} WIB
                   </span>
                 </div>
                 <StatusBadge status={todayAttendance.status} size="sm" />
@@ -534,8 +531,8 @@ export function AttendanceTerminal({
                 <span>Presensi Hari Ini Telah Lengkap</span>
               </div>
               <p className="text-[11px] text-[#71757E] font-mono tabular-nums">
-                Masuk: {new Date(todayAttendance.clockIn).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB · 
-                Pulang: {new Date(todayAttendance.clockOut!).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB
+                Masuk: {formatTimeWIB(todayAttendance.clockIn)} WIB ·{" "}
+                Pulang: {formatTimeWIB(todayAttendance.clockOut!)} WIB
               </p>
             </div>
           )}

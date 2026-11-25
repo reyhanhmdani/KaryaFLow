@@ -15,16 +15,13 @@ import {
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EmploymentStatus, LeaveStatus } from "@/generated/prisma/client";
-import {
-  getAttendanceSummary,
-  listAttendances,
-} from "@/services/attendance.service";
+import { getAttendanceSummary, listAttendances } from "@/services/attendance.service";
 import { listLeaveRequests } from "@/services/leave.service";
 import { listPayrolls } from "@/services/payroll.service";
 import { computeObjectiveRates } from "@/services/performance.service";
 import { getExecutiveOverview } from "@/services/executive.service";
 import { getJakartaDateString, getJakartaTimeParts } from "@/lib/date";
-import { formatIDR } from "@/lib/format";
+import { formatIDR, formatTimeWIB } from "@/lib/format";
 import {
   Card,
   CardHeader,
@@ -36,10 +33,7 @@ import {
 import { MetricRibbon } from "@/components/ui/MetricRibbon";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
-import {
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/ui/motion-primitives";
+import { StaggerContainer, StaggerItem } from "@/components/ui/motion-primitives";
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -65,7 +59,8 @@ export default async function DashboardPage() {
                 Executive Oversight
               </h2>
               <p className="text-xs sm:text-sm text-[#73757D]">
-                Pemantauan read-only atas kedisiplinan HR, ketertiban operasional, dan performa seluruh staf
+                Pemantauan read-only atas kedisiplinan HR, ketertiban operasional, dan performa
+                seluruh staf
               </p>
             </div>
             <span className="inline-flex items-center gap-2 text-xs font-mono text-[#1B1C1E] bg-white border border-[#E2DED3] px-3.5 py-1.5 rounded-full self-start sm:self-auto">
@@ -146,9 +141,7 @@ export default async function DashboardPage() {
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                          <p className="text-sm font-semibold text-[#1B1C1E]">
-                            {hr.fullName}
-                          </p>
+                          <p className="text-sm font-semibold text-[#1B1C1E]">{hr.fullName}</p>
                           <p className="text-xs text-[#73757D]">
                             {hr.employeeCode} · {hr.position} ({hr.department})
                           </p>
@@ -174,18 +167,11 @@ export default async function DashboardPage() {
                                 {log.date}
                               </span>
                               <span className="font-mono tabular-nums text-[#1B1C1E]">
-                                {new Date(log.clockIn).toLocaleTimeString(
-                                  "id-ID",
-                                  { hour: "2-digit", minute: "2-digit" }
-                                )}{" "}
-                                WIB
+                                {formatTimeWIB(log.clockIn)} WIB
                               </span>
                               <div className="flex items-center gap-1.5">
                                 <StatusBadge status={log.status} size="sm" />
-                                <StatusBadge
-                                  status={log.isWfo ? "WFO" : "WFH"}
-                                  size="sm"
-                                />
+                                <StatusBadge status={log.isWfo ? "WFO" : "WFH"} size="sm" />
                               </div>
                             </div>
                           ))}
@@ -210,9 +196,7 @@ export default async function DashboardPage() {
               <CardContent className="space-y-4">
                 <div className="p-3.5 rounded-xl bg-[#FAF8F4] border border-[#E2DED3] space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-[#4E5058]">
-                      Status Permohonan Cuti
-                    </span>
+                    <span className="font-medium text-[#4E5058]">Status Permohonan Cuti</span>
                     <span className="font-mono text-[#73757D]">
                       {hrOperations.avgLeaveProcessingHours !== null
                         ? `SLA ~${hrOperations.avgLeaveProcessingHours}j`
@@ -285,9 +269,7 @@ export default async function DashboardPage() {
             <CardHeader>
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <CardTitle>
-                    Performa & Kehadiran Seluruh Staf (Termasuk HR)
-                  </CardTitle>
+                  <CardTitle>Performa & Kehadiran Seluruh Staf (Termasuk HR)</CardTitle>
                   <CardDescription>
                     Perbandingan objektif kehadiran, ketepatan waktu, dan capaian KPI lintas divisi
                   </CardDescription>
@@ -334,18 +316,13 @@ export default async function DashboardPage() {
                           className="h-[52px] hover:bg-[#FAF8F4]/70 transition-colors"
                         >
                           <td className="py-3 px-5">
-                            <p className="font-semibold text-[#1B1C1E]">
-                              {row.employeeName}
-                            </p>
+                            <p className="font-semibold text-[#1B1C1E]">{row.employeeName}</p>
                             <p className="text-[11px] text-[#73757D]">
                               {row.employeeCode} · {row.department}
                             </p>
                           </td>
                           <td className="py-3 px-4">
-                            <StatusBadge
-                              status={row.role ?? "EMPLOYEE"}
-                              size="sm"
-                            />
+                            <StatusBadge status={row.role ?? "EMPLOYEE"} size="sm" />
                           </td>
                           <td className="py-3 px-4 text-right font-mono tabular-nums text-[#1B1C1E]">
                             {row.attendanceRate}%
@@ -389,9 +366,7 @@ export default async function DashboardPage() {
 
     const summary = await getAttendanceSummary(profile.id, year, month);
     const leaves = await listLeaveRequests({ employeeId: profile.id });
-    const pendingLeavesCount = leaves.filter(
-      (l) => l.status === "PENDING"
-    ).length;
+    const pendingLeavesCount = leaves.filter((l) => l.status === "PENDING").length;
     const payrolls = await listPayrolls({ employeeId: profile.id });
     const latestPayroll = payrolls[0] ?? null;
 
@@ -454,9 +429,7 @@ export default async function DashboardPage() {
                       </span>
                     )}
                   </div>
-                  <CardDescription>
-                    {todayStr} · Jam Kerja 09:00 WIB
-                  </CardDescription>
+                  <CardDescription>{todayStr} · Jam Kerja 09:00 WIB</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {todayRecord ? (
@@ -465,38 +438,23 @@ export default async function DashboardPage() {
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-[#73757D]">Waktu Masuk:</span>
                           <span className="font-mono font-semibold text-[#1B1C1E] tabular-nums">
-                            {new Date(todayRecord.clockIn).toLocaleTimeString(
-                              "id-ID",
-                              { hour: "2-digit", minute: "2-digit" }
-                            )}{" "}
-                            WIB
+                            {formatTimeWIB(todayRecord.clockIn)} WIB
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-[#73757D]">Waktu Keluar:</span>
                           <span className="font-mono font-semibold text-[#1B1C1E] tabular-nums">
-                            {todayRecord.clockOut
-                              ? `${new Date(
-                                  todayRecord.clockOut
-                                ).toLocaleTimeString("id-ID", {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })} WIB`
-                              : "— Belum Clock Out —"}
+                            {formatTimeWIB(todayRecord.clockIn)} WIB
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-[#73757D]">Tipe Kehadiran:</span>
-                          <StatusBadge
-                            status={todayRecord.isWfo ? "WFO" : "WFH"}
-                            size="sm"
-                          />
+                          <StatusBadge status={todayRecord.isWfo ? "WFO" : "WFH"} size="sm" />
                         </div>
                       </div>
                       {todayRecord.lateMinutes > 0 && (
                         <p className="text-[11px] text-amber-800 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
-                          Terlambat {todayRecord.lateMinutes} menit dari jadwal
-                          kantor.
+                          Terlambat {todayRecord.lateMinutes} menit dari jadwal kantor.
                         </p>
                       )}
                     </div>
@@ -509,8 +467,7 @@ export default async function DashboardPage() {
                         Anda Belum Melakukan Clock-In
                       </p>
                       <p className="text-xs text-[#73757D] max-w-xs mx-auto">
-                        Presensi mandiri menggunakan verifikasi radius GPS kantor
-                        100m.
+                        Presensi mandiri menggunakan verifikasi radius GPS kantor 100m.
                       </p>
                     </div>
                   )}
@@ -545,9 +502,7 @@ export default async function DashboardPage() {
                       <span className="text-3xl font-bold font-mono tabular-nums text-[#1B1C1E]">
                         {profile.leaveQuota}
                       </span>
-                      <span className="text-xs text-[#73757D]">
-                        Hari tersisa tahun ini
-                      </span>
+                      <span className="text-xs text-[#73757D]">Hari tersisa tahun ini</span>
                     </div>
                     <div className="text-xs text-[#73757D] flex items-center justify-between pt-2 border-t border-[#E2DED3]">
                       <span>Pengajuan Menunggu:</span>
@@ -591,10 +546,7 @@ export default async function DashboardPage() {
                         </span>
                         <div className="flex items-center justify-between pt-2 mt-2 border-t border-[#E2DED3]">
                           <span className="text-xs text-[#73757D]">Status:</span>
-                          <StatusBadge
-                            status={latestPayroll.status}
-                            size="sm"
-                          />
+                          <StatusBadge status={latestPayroll.status} size="sm" />
                         </div>
                       </div>
                     ) : (
@@ -623,7 +575,9 @@ export default async function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <TrendingUp className="w-4 h-4 text-[#73757D]" />
-                        <span>Ringkasan Performa Bulan {month}/{year}</span>
+                        <span>
+                          Ringkasan Performa Bulan {month}/{year}
+                        </span>
                       </CardTitle>
                       <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full ring-1 ring-inset ring-emerald-600/20">
                         Aktif
@@ -636,25 +590,19 @@ export default async function DashboardPage() {
                   <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
                       <div className="p-3 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
-                        <p className="text-xs text-[#73757D] font-medium mb-1">
-                          Kehadiran
-                        </p>
+                        <p className="text-xs text-[#73757D] font-medium mb-1">Kehadiran</p>
                         <p className="text-xl font-bold font-mono tabular-nums text-[#1B1C1E]">
                           {objective.attendanceRate}%
                         </p>
                       </div>
                       <div className="p-3 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
-                        <p className="text-xs text-[#73757D] font-medium mb-1">
-                          Ketepatan waktu
-                        </p>
+                        <p className="text-xs text-[#73757D] font-medium mb-1">Ketepatan waktu</p>
                         <p className="text-xl font-bold font-mono tabular-nums text-[#1B1C1E]">
                           {objective.punctualityRate}%
                         </p>
                       </div>
                       <div className="p-3 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
-                        <p className="text-xs text-[#73757D] font-medium mb-1">
-                          Tugas (KPI)
-                        </p>
+                        <p className="text-xs text-[#73757D] font-medium mb-1">Tugas (KPI)</p>
                         <p className="text-xl font-bold font-mono tabular-nums text-[#1B1C1E]">
                           {Number(performance?.taskCompletionRate ?? 0)}%
                         </p>
@@ -680,26 +628,21 @@ export default async function DashboardPage() {
   }
 
   // 3. HR_ADMIN Data View (Works with or without EmployeeProfile)
-  const [totalEmployees, allMonthlyAttendances, pendingLeaves, currentPayrolls] =
-    await Promise.all([
+  const [totalEmployees, allMonthlyAttendances, pendingLeaves, currentPayrolls] = await Promise.all(
+    [
       prisma.employeeProfile.count({
         where: { status: { in: [EmploymentStatus.ACTIVE, EmploymentStatus.PROBATION] } },
       }),
       listAttendances({ monthPrefix }),
       listLeaveRequests({ status: LeaveStatus.PENDING }),
       listPayrolls({ periodYear: year, periodMonth: month }),
-    ]);
-
-  const todayAttendances = allMonthlyAttendances.filter(
-    (a) => a.date === todayStr
+    ]
   );
-  const presentCount = todayAttendances.filter(
-    (a) => a.status === "PRESENT"
-  ).length;
+
+  const todayAttendances = allMonthlyAttendances.filter((a) => a.date === todayStr);
+  const presentCount = todayAttendances.filter((a) => a.status === "PRESENT").length;
   const lateCount = todayAttendances.filter((a) => a.status === "LATE").length;
-  const onLeaveCount = todayAttendances.filter(
-    (a) => a.status === "ON_LEAVE"
-  ).length;
+  const onLeaveCount = todayAttendances.filter((a) => a.status === "ON_LEAVE").length;
 
   const recentFive = todayAttendances.slice(0, 5);
 
@@ -776,9 +719,7 @@ export default async function DashboardPage() {
                     {pendingLeaves.length} Pending
                   </span>
                 </div>
-                <CardDescription>
-                  Memerlukan review dan persetujuan HR
-                </CardDescription>
+                <CardDescription>Memerlukan review dan persetujuan HR</CardDescription>
               </CardHeader>
               <CardContent>
                 {pendingLeaves.length > 0 ? (
@@ -826,7 +767,9 @@ export default async function DashboardPage() {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <Receipt className="w-4 h-4 text-[#73757D]" />
-                  <span>Status Payroll {month}/{year}</span>
+                  <span>
+                    Status Payroll {month}/{year}
+                  </span>
                 </CardTitle>
                 <Link
                   href="/payroll"
@@ -850,10 +793,7 @@ export default async function DashboardPage() {
                 <div className="p-2.5 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
                   <p className="text-[11px] text-[#73757D] font-medium">Diproses</p>
                   <p className="text-base font-bold font-mono text-blue-700 tabular-nums">
-                    {
-                      currentPayrolls.filter((p) => p.status === "PROCESSED")
-                        .length
-                    }
+                    {currentPayrolls.filter((p) => p.status === "PROCESSED").length}
                   </p>
                 </div>
                 <div className="p-2.5 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
@@ -884,9 +824,7 @@ export default async function DashboardPage() {
                     <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
-                <CardDescription>
-                  Log real-time kehadiran karyawan per {todayStr}
-                </CardDescription>
+                <CardDescription>Log real-time kehadiran karyawan per {todayStr}</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 {recentFive.length > 0 ? (
@@ -908,33 +846,20 @@ export default async function DashboardPage() {
                             className="hover:bg-[#FAF8F4]/70 transition-colors h-[52px]"
                           >
                             <td className="py-3 px-5">
-                              <p className="font-semibold text-[#1B1C1E]">
-                                {row.employeeName}
-                              </p>
-                              <p className="text-[11px] text-[#73757D]">
-                                {row.department}
-                              </p>
+                              <p className="font-semibold text-[#1B1C1E]">{row.employeeName}</p>
+                              <p className="text-[11px] text-[#73757D]">{row.department}</p>
                             </td>
                             <td className="py-3 px-3 font-mono tabular-nums text-[#1B1C1E]">
-                              {new Date(row.clockIn).toLocaleTimeString(
-                                "id-ID",
-                                { hour: "2-digit", minute: "2-digit" }
-                              )}{" "}
-                              WIB
+                              {formatTimeWIB(row.clockIn)} WIB
                             </td>
                             <td className="py-3 px-3">
                               <StatusBadge status={row.status} size="sm" />
                             </td>
                             <td className="py-3 px-3">
-                              <StatusBadge
-                                status={row.isWfo ? "WFO" : "WFH"}
-                                size="sm"
-                              />
+                              <StatusBadge status={row.isWfo ? "WFO" : "WFH"} size="sm" />
                             </td>
                             <td className="py-3 px-5 text-right font-mono tabular-nums text-[#73757D]">
-                              {row.distanceMeter !== null
-                                ? `${row.distanceMeter}m`
-                                : "—"}
+                              {row.distanceMeter !== null ? `${row.distanceMeter}m` : "—"}
                             </td>
                           </tr>
                         ))}
