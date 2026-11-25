@@ -49,3 +49,8 @@ ENGINEERING_NOTES.md
 # local raw brand assets
 /Logo.jpg
 /karyaflowfavicon.jpg
+
+# playwright
+/playwright-report/
+/test-results/
+
