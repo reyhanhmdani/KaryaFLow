@@ -17,7 +17,7 @@ export default async function DashboardLayout({
       <Sidebar user={user} />
       <div className="flex-1 flex flex-col min-w-0 md:pl-64">
         <TopBar serverDate={serverDate} />
-        <main className="flex-1 px-5 py-6 sm:px-8 sm:py-8 max-w-[1360px] w-full mx-auto">
+        <main className="flex-1 px-4 py-4 sm:px-8 sm:py-8 max-w-[1360px] w-full mx-auto">
           {children}
         </main>
       </div>

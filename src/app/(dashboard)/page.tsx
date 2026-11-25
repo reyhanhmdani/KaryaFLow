@@ -384,11 +384,11 @@ export default async function DashboardPage() {
     const todayRecord = summary.todayRecord;
 
     return (
-      <StaggerContainer className="space-y-6">
+      <StaggerContainer className="space-y-4 sm:space-y-6">
         {/* Welcome Banner */}
         <StaggerItem>
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 pb-4 border-b border-[#E2DED3]">
-            <div className="space-y-1">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2.5 sm:gap-3 pb-3.5 sm:pb-4 border-b border-[#E2DED3]">
+            <div className="space-y-0.5 sm:space-y-1">
               <h2
                 className="font-display font-semibold tracking-tight text-[#1B1C1E]"
                 style={{ fontSize: "clamp(1.35rem, 2.2vw, 1.85rem)" }}
@@ -399,7 +399,7 @@ export default async function DashboardPage() {
                 {profile.position} — Divisi {profile.department} ({profile.employeeCode})
               </p>
             </div>
-            <div className="inline-flex items-center gap-2.5 bg-white border border-[#E2DED3] px-3.5 py-1.5 rounded-full self-start sm:self-auto">
+            <div className="inline-flex items-center gap-2.5 bg-white border border-[#E2DED3] px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full self-start sm:self-auto">
               <span className="text-xs text-[#73757D]">Sisa kuota cuti</span>
               <span className="text-xs font-bold text-[#1B1C1E] font-mono tabular-nums">
                 {profile.leaveQuota} hari
@@ -409,21 +409,21 @@ export default async function DashboardPage() {
         </StaggerItem>
 
         {/* Asymmetric 12-Col Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           {/* Left Column (5 Cols): Smart Attendance Pulse */}
-          <StaggerItem className="lg:col-span-5 flex flex-col gap-6">
+          <StaggerItem className="lg:col-span-5 flex flex-col gap-4 sm:gap-6">
             <Card className="flex-1 flex flex-col justify-between">
               <div>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <CardTitle className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-[#73757D]" />
+                      <Clock className="w-4 h-4 text-[#73757D] shrink-0" />
                       <span>Status Presensi Hari Ini</span>
                     </CardTitle>
                     {todayRecord ? (
                       <StatusBadge status={todayRecord.status} size="sm" />
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/20">
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/20 shrink-0">
                         <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
                         Belum Presensi
                       </span>
@@ -431,26 +431,44 @@ export default async function DashboardPage() {
                   </div>
                   <CardDescription>{todayStr} · Jam Kerja 09:00 WIB</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3.5">
                   {todayRecord ? (
                     <div className="space-y-3">
                       <div className="p-3.5 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl space-y-2">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-[#73757D]">Waktu Masuk:</span>
+                          <span className="text-[#73757D]">Waktu Masuk</span>
                           <span className="font-mono font-semibold text-[#1B1C1E] tabular-nums">
                             {formatTimeWIB(todayRecord.clockIn)} WIB
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-[#73757D]">Waktu Keluar:</span>
+                          <span className="text-[#73757D]">Waktu Keluar</span>
                           <span className="font-mono font-semibold text-[#1B1C1E] tabular-nums">
-                            {formatTimeWIB(todayRecord.clockIn)} WIB
+                            {todayRecord.clockOut
+                              ? `${formatTimeWIB(todayRecord.clockOut)} WIB`
+                              : "— Belum Clock Out —"}
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-[#73757D]">Tipe Kehadiran:</span>
+                          <span className="text-[#73757D]">Tipe Kehadiran</span>
                           <StatusBadge status={todayRecord.isWfo ? "WFO" : "WFH"} size="sm" />
                         </div>
+                        {todayRecord.distanceMeter !== null && (
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-[#73757D]">Jarak Geofence</span>
+                            <span className="font-mono text-[#1B1C1E] tabular-nums">
+                              {todayRecord.distanceMeter}m dari kantor
+                            </span>
+                          </div>
+                        )}
+                        {todayRecord.notes && (
+                          <div className="pt-2 border-t border-[#E2DED3]/70 flex items-start justify-between gap-3 text-xs">
+                            <span className="text-[#73757D] shrink-0">Catatan</span>
+                            <span className="text-[#1B1C1E] text-right line-clamp-2">
+                              {todayRecord.notes}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       {todayRecord.lateMinutes > 0 && (
                         <p className="text-[11px] text-amber-800 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
@@ -459,9 +477,9 @@ export default async function DashboardPage() {
                       )}
                     </div>
                   ) : (
-                    <div className="py-6 text-center space-y-2">
-                      <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto ring-4 ring-amber-500/10">
-                        <Clock className="w-6 h-6 stroke-[1.5]" />
+                    <div className="py-5 text-center space-y-2">
+                      <div className="w-11 h-11 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto ring-4 ring-amber-500/10">
+                        <Clock className="w-5 h-5 stroke-[1.5]" />
                       </div>
                       <p className="text-sm font-semibold text-[#1B1C1E]">
                         Anda Belum Melakukan Clock-In
@@ -471,6 +489,44 @@ export default async function DashboardPage() {
                       </p>
                     </div>
                   )}
+
+                  {/* Rekap Kehadiran Bulan Berjalan (mengisi ruang desktop & ringkas di mobile) */}
+                  <div className="pt-3 border-t border-[#E2DED3]/80 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] text-[#73757D]">
+                      <span className="font-medium uppercase tracking-wider">
+                        Rekap Bulan {month}/{year}
+                      </span>
+                      <span className="font-mono tabular-nums">
+                        {summary.effectiveWorkingDays} hari kerja
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2 text-center">
+                      <div className="py-2 px-1 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
+                        <p className="text-[10px] text-[#73757D]">Hadir</p>
+                        <p className="text-sm font-bold font-mono tabular-nums text-emerald-700">
+                          {summary.presentDays}
+                        </p>
+                      </div>
+                      <div className="py-2 px-1 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
+                        <p className="text-[10px] text-[#73757D]">Telat</p>
+                        <p className="text-sm font-bold font-mono tabular-nums text-amber-700">
+                          {summary.lateDays}
+                        </p>
+                      </div>
+                      <div className="py-2 px-1 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
+                        <p className="text-[10px] text-[#73757D]">Cuti</p>
+                        <p className="text-sm font-bold font-mono tabular-nums text-blue-700">
+                          {summary.onLeaveDays}
+                        </p>
+                      </div>
+                      <div className="py-2 px-1 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
+                        <p className="text-[10px] text-[#73757D]">Alpa</p>
+                        <p className="text-sm font-bold font-mono tabular-nums text-rose-700">
+                          {summary.absentDays}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </div>
               <CardFooter>
@@ -486,7 +542,7 @@ export default async function DashboardPage() {
           </StaggerItem>
 
           {/* Right Column (7 Cols): High-Density Metric Grid */}
-          <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <StaggerItem>
               <Card className="h-full flex flex-col justify-between">
                 <div>
@@ -588,22 +644,28 @@ export default async function DashboardPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
-                      <div className="p-3 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
-                        <p className="text-xs text-[#73757D] font-medium mb-1">Kehadiran</p>
-                        <p className="text-xl font-bold font-mono tabular-nums text-[#1B1C1E]">
+                    <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
+                      <div className="p-2.5 sm:p-3 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
+                        <p className="text-[11px] sm:text-xs text-[#73757D] font-medium mb-1">
+                          Kehadiran
+                        </p>
+                        <p className="text-base sm:text-xl font-bold font-mono tabular-nums text-[#1B1C1E]">
                           {objective.attendanceRate}%
                         </p>
                       </div>
-                      <div className="p-3 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
-                        <p className="text-xs text-[#73757D] font-medium mb-1">Ketepatan waktu</p>
-                        <p className="text-xl font-bold font-mono tabular-nums text-[#1B1C1E]">
+                      <div className="p-2.5 sm:p-3 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
+                        <p className="text-[11px] sm:text-xs text-[#73757D] font-medium mb-1 truncate">
+                          Tepat Waktu
+                        </p>
+                        <p className="text-base sm:text-xl font-bold font-mono tabular-nums text-[#1B1C1E]">
                           {objective.punctualityRate}%
                         </p>
                       </div>
-                      <div className="p-3 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
-                        <p className="text-xs text-[#73757D] font-medium mb-1">Tugas (KPI)</p>
-                        <p className="text-xl font-bold font-mono tabular-nums text-[#1B1C1E]">
+                      <div className="p-2.5 sm:p-3 bg-[#FAF8F4] border border-[#E2DED3] rounded-xl">
+                        <p className="text-[11px] sm:text-xs text-[#73757D] font-medium mb-1">
+                          Tugas (KPI)
+                        </p>
+                        <p className="text-base sm:text-xl font-bold font-mono tabular-nums text-[#1B1C1E]">
                           {Number(performance?.taskCompletionRate ?? 0)}%
                         </p>
                       </div>
