@@ -38,7 +38,7 @@ export default async function LoginPage() {
               />
             </div>
             <span className="font-display text-xl font-bold tracking-tight text-[#F6F4EE]">
-              KaryaFlow
+              Karya<span className="text-[#F7C331]">Flow</span>
             </span>
           </div>
           <span className="text-xs font-mono text-[#A6A8B1] border border-white/10 px-3 py-1 rounded-full">
